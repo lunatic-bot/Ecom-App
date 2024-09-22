@@ -20,8 +20,3 @@ class User(Base):
     # Columns to handle password reset tokens and their expiration
     reset_token = Column(String, nullable=True)  # Token for resetting the password, can be null if no reset is requested
     reset_token_expiration = Column(DateTime, nullable=True)  # Expiration time for the reset token, can also be null
-
-    # Relationship with the TodoItem model
-    todos = relationship("TodoItem", back_populates="owner", cascade="all, delete-orphan")  
-    # Defines a one-to-many relationship where a user can have many todos.
-    # The 'cascade' option ensures that if a user is deleted, all their associated todos are also deleted.

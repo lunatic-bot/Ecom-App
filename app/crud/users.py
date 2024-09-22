@@ -1,10 +1,11 @@
-from sqlalchemy.orm import Session  # Import SQLAlchemy session for interacting with the database
-from app.models.users import User  # Import the User model
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession  # Import SQLAlchemy asyncsession for interacting with the database
+from app.db.models.users import User  # Import the User model
 from app.core.auth import verify_password  # Import function to verify password from the auth module
 from app.core.auth import get_password_hash  # Import function to hash passwords from the auth module
 
 # Function to create a new user in the database
-def create_user_in_db(db: Session, username: str, email: str, password: str) -> User:
+async def create_user_in_db(db: AsyncSession, username: str, email: str, password: str) -> User:
     """
     Creates a new user in the database.
     Args:
@@ -27,14 +28,14 @@ def create_user_in_db(db: Session, username: str, email: str, password: str) -> 
     
     # Add the new user to the session and commit the transaction to save it in the database
     db.add(new_user)
-    db.commit()
+    await db.commit()
     # Refresh the user instance to reflect any auto-generated fields (e.g., ID)
-    db.refresh(new_user)
+    await db.refresh(new_user)
     
     return new_user  # Return the created user instance
 
 # Function to retrieve a user by their email
-def get_user_by_mail(db: Session, email: str):
+async def get_user_by_mail(db: AsyncSession, email: str):
     """
     Fetches a user from the database based on their email.
     Args:
@@ -43,10 +44,12 @@ def get_user_by_mail(db: Session, email: str):
     Returns:
         User: The user instance if found, else None.
     """
-    return db.query(User).filter(User.email == email).first()
+    # return db.query(User).filter(User.email == email).first()
+    result = await db.execute(select(User).filter(User.email == email))
+    return result.scalars().first()
 
 # Function to authenticate a user by email and password
-def authenticate_user(db: Session, email: str, password: str):
+async def authenticate_user(db: AsyncSession, email: str, password: str):
     """
     Authenticates a user by verifying their email and password.
     Args:
@@ -57,7 +60,7 @@ def authenticate_user(db: Session, email: str, password: str):
         User: The authenticated user instance if successful, else False.
     """
     # Fetch the user by email
-    user = get_user_by_mail(db, email=email)
+    user = await get_user_by_mail(db, email=email)
     
     # Return False if the user is not found
     if not user:
@@ -71,7 +74,7 @@ def authenticate_user(db: Session, email: str, password: str):
     return user
 
 # Function to retrieve a user by their reset token
-def get_user_by_token(db: Session, token: str):
+async def get_user_by_token(db: AsyncSession, token: str):
     """
     Fetches a user from the database based on their password reset token.
     Args:
@@ -80,4 +83,6 @@ def get_user_by_token(db: Session, token: str):
     Returns:
         User: The user instance if found, else None.
     """
-    return db.query(User).filter(User.reset_token == token).first()
+    # return await db.query(User).filter(User.reset_token == token).first()
+    result = await db.execute(select(User).filter(User.reset_token == token))
+    return result.scalars().first()
