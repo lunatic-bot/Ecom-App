@@ -1,0 +1,59 @@
+{% extends "email_base.html" %}
+
+{% block title %}Welcome to Todo App, {{ username }}!{% endblock %}
+
+{% block body %}
+<table width="100%" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; background-color: #f9f9f9; color: #333; padding: 20px;">
+    <tr>
+        <td>
+            <h1 style="color: #4CAF50;">Hello {{ username }},</h1>
+            <p style="font-size: 16px; line-height: 1.6;">
+                We are excited to welcome you to our growing community at <strong>Todo App</strong>! Your account has been successfully created, and you’re all set to begin managing your tasks efficiently.
+            </p>
+
+            <h2 style="color: #4CAF50;">What can you do with Todo App?</h2>
+            <ul style="font-size: 16px; line-height: 1.6;">
+                <li><strong>Create and Manage Tasks:</strong> Easily create tasks and track your progress.</li>
+                <li><strong>Set Deadlines and Priorities:</strong> Stay organized by setting due dates and priority levels.</li>
+                <li><strong>Organize Your Workflow:</strong> Use categories and tags to organize tasks in your preferred way.</li>
+                <li><strong>Collaborate with Others:</strong> Share tasks and collaborate with teammates or family members.</li>
+            </ul>
+
+            <h2 style="color: #4CAF50;">Getting Started</h2>
+            <p style="font-size: 16px; line-height: 1.6;">
+                Follow these steps to get started with Todo App:
+            </p>
+            <ol style="font-size: 16px; line-height: 1.6;">
+                <li>Log in to your account using your registered email and password.</li>
+                <li>Create your first task by clicking the <strong>"Add Task"</strong> button on your dashboard.</li>
+                <li>Explore the settings to customize the app according to your preferences.</li>
+            </ol>
+
+            <h2 style="color: #4CAF50;">Need Help?</h2>
+            <p style="font-size: 16px; line-height: 1.6;">
+                If you have any questions, feel free to reach out to our support team at 
+                <a href="mailto:support@todoapp.com" style="color: #4CAF50; text-decoration: none;">support@todoapp.com</a>.
+            </p>
+
+            <p style="font-size: 16px; line-height: 1.6;">
+                Thank you for choosing Todo App! We are committed to helping you stay organized and productive.
+            </p>
+
+            <p style="font-size: 16px; line-height: 1.6;">
+                Best regards,<br>
+                The Todo App Team
+            </p>
+
+            <hr style="border-top: 1px solid #ddd; margin: 20px 0;">
+            <p style="font-size: 14px; text-align: center; color: #999;">
+                Follow us on social media for the latest updates:
+            </p>
+            <p style="text-align: center;">
+                <a href="https://twitter.com/TodoApp" style="color: #4CAF50; text-decoration: none;">Twitter</a> | 
+                <a href="https://facebook.com/todoapp" style="color: #4CAF50; text-decoration: none;">Facebook</a> | 
+                <a href="https://instagram.com/todoappofficial" style="color: #4CAF50; text-decoration: none;">Instagram</a>
+            </p>
+        </td>
+    </tr>
+</table>
+{% endblock %}
