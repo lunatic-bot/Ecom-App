@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, UUID, ForeignKey 
 from sqlalchemy.orm import relationship
-from base import Base
+from .base import Base
 import uuid
 
 class ShoppingCart(Base):

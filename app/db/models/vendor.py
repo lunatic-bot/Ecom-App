@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, UUID  
-from base import Base
+from .base import Base
 import uuid
 
 class Vendor(Base):

@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession  # Import SQLAlchemy asyncsession for interacting with the database
-from app.db.models.users import User  # Import the User model
+from app.db.models.user import User  # Import the User model
 from app.core.auth import verify_password  # Import function to verify password from the auth module
 from app.core.auth import get_password_hash  # Import function to hash passwords from the auth module
 

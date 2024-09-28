@@ -1,5 +1,5 @@
 from sqlalchemy import Column, UUID, Numeric, ForeignKey, Enum  # Import required column types for the SQLAlchemy model
-from base import Base
+from .base import Base
 import uuid
 from enum import Enum as PyEnum
 

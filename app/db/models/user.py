@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, Enum
 from sqlalchemy.orm import relationship
 from enum import Enum as PyEnum
-from base import Base
+from .base import Base
 
 class UserRole(PyEnum):
     USER = 'User'

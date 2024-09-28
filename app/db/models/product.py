@@ -1,9 +1,9 @@
 from sqlalchemy import Numeric, Integer, String, UUID
 from sqlalchemy import Table, Column, ForeignKey
 from sqlalchemy.orm import relationship
-from base import Base
+from .base import Base
 import uuid
-from wishlist import wishlist_product_association
+from .wishlist import wishlist_product_association
 
 
 product_category_association = Table(

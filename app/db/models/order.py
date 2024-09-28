@@ -1,7 +1,7 @@
 from sqlalchemy import Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, Numeric, String, UUID, ForeignKey  # Import required column types for the SQLAlchemy model
-from base import Base
+from .base import Base
 import uuid
 from enum import Enum as PyEnum
 

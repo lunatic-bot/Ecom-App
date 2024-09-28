@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy import Column, UUID, Integer, String, ForeignKey 
-from base import Base
+from .base import Base
 
 
 class Review(Base):

@@ -2,12 +2,9 @@
 from .base import Base
 from .user import User
 from .vendor import Vendor
-from .product import Product
-from .category import Category
-from .order import Order
-from .order_item import OrderItem
-from .shopping_cart import ShoppingCart
-from .cart_item import CartItem
-from .wishlist import Wishlist
+from .product import Product, Category, product_category_association
+from .order import Order, OrderItem
+from .wishlist import Wishlist, wishlist_product_association
 from .payment import Payment
-from .review import Review
+from .reviewAndRating import Review
+from .shoppingCart import CartItem, ShoppingCart

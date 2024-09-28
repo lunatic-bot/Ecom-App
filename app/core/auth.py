@@ -4,7 +4,7 @@ from app.db.database import get_db  # Importing database dependency for session 
 from fastapi import Depends, HTTPException, status  # Importing FastAPI dependencies for handling HTTP exceptions and status codes
 from starlette.requests import Request  # Importing Request object for managing HTTP requests
 from sqlalchemy.orm import Session  # Importing SQLAlchemy session for interacting with the database
-from app.db.models.users import User  # Importing the User model from the database models
+from app.db.models.user import User  # Importing the User model from the database models
 from datetime import datetime, timedelta  # Importing datetime utilities for time-based calculations
 from pytz import timezone  # Importing timezone utilities for time zone handling
 from jose import JWTError, jwt  # type: ignore # Importing JWT (JSON Web Token) utilities for token creation and verification

@@ -14,7 +14,7 @@ import app.crud.users as crud
 from app.db.database import get_db
 from app.core.auth import create_access_token, get_current_user, get_password_hash
 from app.utlis.utils import generate_reset_token, send_email
-from app.db.models.users import User  # User model
+from app.db.models.user import User  # User model
 
 # Defining an API router for managing user routes
 from fastapi import APIRouter
