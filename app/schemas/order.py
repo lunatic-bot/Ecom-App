@@ -16,5 +16,3 @@ class OrderResponse(BaseModel):
     total_amount: float
 
 
-## new
-## new second
