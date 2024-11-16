@@ -25,7 +25,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 # Route to handle user signup (POST method)
-@router.post("/users/signup", response_model=UserResponse)
+@router.post("/users/register", response_model=UserResponse)
 async def create_user(
     username: str = Form(...),  # Collecting username from form data
     email: str = Form(...),  # Collecting email from form data
@@ -80,7 +80,7 @@ async def login_for_access_token(
 
 
 # Route to request a password reset (POST method)
-@router.post("/request-password-reset")
+@router.post("/users/request-password-reset")
 async def request_password_reset(
     email: str = Form(...),  # Collect email from form
     db: AsyncSession = Depends(get_db)  # Inject database session
@@ -121,7 +121,7 @@ async def request_password_reset(
 
 
 # Route to handle password reset (POST method)
-@router.post("/reset-password/")
+@router.post("/users/reset-password/")
 async def reset_password(
     token: str = Form(...),  # Collect reset token from form
     new_password: str = Form(...),  # Collect new password
