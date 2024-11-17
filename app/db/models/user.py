@@ -25,3 +25,4 @@ class User(Base):
 
     orders = relationship("Order", back_populates="user")
     shopping_cart = relationship("ShoppingCart", back_populates="user", uselist=False)
+    tokens = relationship("Token", back_populates="user")

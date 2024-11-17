@@ -92,3 +92,34 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     
     # Return the encoded JWT
     return encoded_jwt
+
+
+
+def create_token(data: dict, expires_in_minutes: int):
+    """
+    Create a JWT token with a specified expiration time.
+
+    Args:
+        data (dict): Payload data for the token.
+        expires_in_minutes (int): Token expiration time in minutes.
+
+    Returns:
+        str: Encoded JWT token.
+    """
+    to_encode = data.copy()
+    expire = datetime.now(datetime.timezone.utc) + timedelta(minutes=expires_in_minutes)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+
+
+
+def verify_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except JWTError:
+        return None
+

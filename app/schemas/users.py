@@ -35,3 +35,10 @@ class PasswordResetForm(BaseModel):
     token: str  # The token sent to the user's email for password reset, required
     new_password: str  
     confirm_password: str  
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str
+

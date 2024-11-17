@@ -77,6 +77,23 @@ async def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+@router.post("/refresh", response_model=TokenResponse)
+def refresh_access_token(refresh_token: str, db: Session = Depends(get_db)):
+    # Verify refresh token
+    payload = verify_token(refresh_token)
+    if not payload:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+
+    user_id = payload.get("sub")
+    token_entry = db.query(Token).filter(Token.refresh_token == refresh_token, Token.user_id == user_id).first()
+
+    if not token_entry or token_entry.expires_at < datetime.utcnow():
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token expired")
+
+    # Generate new access token
+    access_token = create_access_token({"sub": user_id})
+    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
 
 
 # Route to request a password reset (POST method)
