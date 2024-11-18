@@ -1,8 +1,11 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession  # Import SQLAlchemy asyncsession for interacting with the database
-from app.db.models.user import User  # Import the User model
-from app.core.auth import verify_password  # Import function to verify password from the auth module
-from app.core.auth import get_password_hash  # Import function to hash passwords from the auth module
+from fastapi import HTTPException, status
+
+from schemas.users import UserUpdate
+from db.models.user import User # Import the User model
+from core.auth import verify_password  # Import function to verify password from the auth module
+from core.auth import get_password_hash  # Import function to hash passwords from the auth module
 
 # Function to create a new user in the database
 async def create_user_in_db(db: AsyncSession, username: str, email: str, password: str) -> User:
@@ -72,6 +75,46 @@ async def authenticate_user(db: AsyncSession, email: str, password: str):
     
     # Return the authenticated user if successful
     return user
+
+async def delete_user(db:AsyncSession, user_id: int):
+    # Fetch user
+    result = await db.execute(select(User).filter(User.id == user_id))
+    user = result.scalars().first()
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    # Delete user
+    await db.delete(user)
+    await db.commit()
+
+    return user
+
+
+async def get_all_users(db:AsyncSession):
+    # Fetch all users
+    result = await db.execute(select(User))
+    users = result.scalars().all()
+    return users
+
+
+async def update_user(db: AsyncSession, user_id:int, user_update:UserUpdate ):
+    # Fetch user
+    result = await db.execute(select(User).filter(User.id == user_id))
+    user = result.scalars().first()
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    # Update user details
+    for key, value in user_update.dict(exclude_unset=True).items():
+        setattr(user, key, value)
+
+    await db.commit()
+    await db.refresh(user)
+
+    return user
+
 
 # Function to retrieve a user by their reset token
 async def get_user_by_token(db: AsyncSession, token: str):

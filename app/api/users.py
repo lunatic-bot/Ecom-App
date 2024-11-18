@@ -1,20 +1,21 @@
 # Importing necessary modules from FastAPI, SQLAlchemy, Starlette, and other packages
 from fastapi import Depends, HTTPException, status, Request, Form
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas.users import UserResponse, Token  # Pydantic models for user response and token
 from fastapi.responses import HTMLResponse, RedirectResponse
 from starlette.requests import Request  # Handling HTTP requests
 from fastapi.security import OAuth2PasswordRequestForm  # OAuth2 form for login
 from datetime import datetime, timedelta  # Handling date and time operations
 from pytz import timezone  # Managing time zones
 from email_validator import validate_email, EmailNotValidError  # Validating email addresses
+from sqlalchemy.future import select
 
 # Importing CRUD operations, templates, database utilities, authentication methods, and utility functions
-import app.crud.users as crud
-from app.db.database import get_db
-from app.core.auth import create_access_token, get_current_user, get_password_hash
-from app.utlis.utils import generate_reset_token, send_email
-from app.db.models.user import User  # User model
+import crud.users as crud
+from db.database import get_db
+from core.auth import create_access_token, get_current_user, get_password_hash, verify_token
+from utlis.utils import generate_reset_token, send_email
+from db.models.user import User  # User model
+from schemas.users import UserResponse, Token, TokenResponse, UserUpdate # Pydantic models for user response and token
 
 # Defining an API router for managing user routes
 from fastapi import APIRouter
@@ -22,10 +23,11 @@ router = APIRouter()
 
 # Token expiration time for access tokens
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_TOKEN_EXPIRE_MINUTES = 1440
 
 
 # Route to handle user signup (POST method)
-@router.post("/users/register", response_model=UserResponse)
+@router.post("/users/register", response_model=UserResponse, tags=["User"])
 async def create_user(
     username: str = Form(...),  # Collecting username from form data
     email: str = Form(...),  # Collecting email from form data
@@ -52,33 +54,90 @@ async def create_user(
 
     return {"status" : "success", "user": new_user}    
 
-
-  
-
-
-# Route to handle login and issue access tokens (POST method)
-@router.post("/token", response_model=Token)
-async def login_for_access_token(
-    request: Request,
-    form_data: OAuth2PasswordRequestForm = Depends(),  # Collecting OAuth2 form data for login
-    db: AsyncSession = Depends(get_db)  # Injecting database session
+@router.put("/users/{user_id}", response_model=UserResponse, tags=["Admin"])
+async def update_user(
+    user_id: int,
+    user_update: UserUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    # Authenticate the user using the provided username and password
+    # Check permissions
+    if current_user.role != "admin" and current_user.id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to update this user"
+        )
+
+    user = await crud.update_user(db, user_id, user_update)
+
+    return user
+
+
+@router.get("/users", response_model=list[UserResponse], tags=["Admin"])
+async def list_users(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to access this resource"
+        )
+    
+    users = await crud.get_all_users(db)
+
+    return users
+
+
+@router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["Admin"])
+async def delete_user(
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete users"
+        )
+
+    user = await crud.delete_user(db, user_id=user_id)
+
+    return user
+
+
+
+@router.post("/token", response_model=Token, tags=["User"])
+async def login_for_access_and_refresh_token(
+    request: Request,
+    form_data: OAuth2PasswordRequestForm = Depends(),  # OAuth2 form data
+    db: AsyncSession = Depends(get_db),  # Async database session
+):
+    # Authenticate the user
     user = await crud.authenticate_user(db, form_data.username, form_data.password)
     if not user:
-        # If authentication fails, return the login page with an error message
-        error_message = "Incorrect username or password"
-        return {"request": request, "message": error_message, "message_type": "danger"}
-    
-    # Create an access token that expires after a set time
+        # Return error message if authentication fails
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Generate Access Token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    # Generate Refresh Token
+    refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_MINUTES)
+    refresh_token = create_access_token(data={"sub": user.email}, expires_delta=refresh_token_expires)
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+    }
 
 
-@router.post("/refresh", response_model=TokenResponse)
-def refresh_access_token(refresh_token: str, db: Session = Depends(get_db)):
+
+@router.post("/refresh", response_model=TokenResponse, tags=["User"])
+def refresh_access_token(refresh_token: str, db: AsyncSession = Depends(get_db)):
     # Verify refresh token
     payload = verify_token(refresh_token)
     if not payload:
@@ -97,7 +156,7 @@ def refresh_access_token(refresh_token: str, db: Session = Depends(get_db)):
 
 
 # Route to request a password reset (POST method)
-@router.post("/users/request-password-reset")
+@router.post("/users/request-password-reset", tags=["User"])
 async def request_password_reset(
     email: str = Form(...),  # Collect email from form
     db: AsyncSession = Depends(get_db)  # Inject database session
@@ -138,7 +197,7 @@ async def request_password_reset(
 
 
 # Route to handle password reset (POST method)
-@router.post("/users/reset-password/")
+@router.post("/users/reset-password/", tags=["User"])
 async def reset_password(
     token: str = Form(...),  # Collect reset token from form
     new_password: str = Form(...),  # Collect new password

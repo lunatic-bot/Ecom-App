@@ -13,13 +13,13 @@ app = FastAPI()
 # app.add_middleware(SessionMiddleware, secret_key=os.getenv("SESSION_SECRET_KEY"))
 
 
-from app.api.users import router as users_router
+from api.users import router as users_router
 # from app.api.todos import router as todos_router
 # from app.api.others import router as others_router
 # from app.api.auth_routes import router as auth_router
 
 ## user routes
-app.include_router(users_router, tags=["Users"])
+app.include_router(users_router)
 ## todo routes
 # app.include_router(todos_router, tags=["Todos"])
 # ## other routes

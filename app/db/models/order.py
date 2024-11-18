@@ -15,7 +15,7 @@ class Order(Base):
     __tablename__ = 'orders'
 
     order_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
     total_amount = Column(Numeric(10, 2), nullable=False)
     status = Column(Enum(OrderStatus), default=OrderStatus.PENDING, nullable=False)
     shipping_address = Column(String, nullable=False)

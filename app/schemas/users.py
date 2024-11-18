@@ -12,6 +12,11 @@ class UserCreate(BaseModel):
     email: EmailStr  
     password: str  
 
+class UserUpdate(BaseModel):
+    name: str | None = None
+    email: EmailStr | None = None
+    is_active: bool | None = None
+
 # Schema for user response after successful sign-up or retrieval
 class UserResponse(BaseModel):
     id: int  
@@ -41,4 +46,9 @@ class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str
+
+
+
+
+
 
