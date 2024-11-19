@@ -7,6 +7,8 @@ class UserRole(PyEnum):
     USER = 'User'
     ADMIN = 'Admin'
 
+## updating 
+
 # Define the User model, representing the 'users' table in the database
 class User(Base):
     __tablename__ = "users"  # Specify the table name as 'users'
