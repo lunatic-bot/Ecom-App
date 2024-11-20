@@ -7,9 +7,8 @@ class Token(Base):
     __tablename__ = "tokens"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    refresh_token = Column(String, unique=True, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
+    refresh_token = Column(String, unique=True, nullable=False)     
     expires_at = Column(DateTime, nullable=False)
 
     user = relationship("User", back_populates="tokens")

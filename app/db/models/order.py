@@ -19,6 +19,7 @@ class Order(Base):
     total_amount = Column(Numeric(10, 2), nullable=False)
     status = Column(Enum(OrderStatus), default=OrderStatus.PENDING, nullable=False)
     shipping_address = Column(String, nullable=False)
+    cancellation_reason = Column(String, nullable=True)
 
     user = relationship("User", back_populates="orders")
     order_items = relationship("OrderItem", back_populates="order")
