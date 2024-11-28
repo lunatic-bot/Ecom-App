@@ -5,6 +5,7 @@ from fastapi import HTTPException, status
 from schemas.users import UserUpdate
 from schemas.users import UserResponse
 from db.models.user import User # Import the User model
+from db.models.token import Token # Import the User model
 from core.auth import verify_password  # Import function to verify password from the auth module
 from core.auth import get_password_hash  # Import function to hash passwords from the auth module
 
@@ -35,8 +36,10 @@ async def create_user_in_db(db: AsyncSession, username: str, email: str, passwor
     await db.commit()
     # Refresh the user instance to reflect any auto-generated fields (e.g., ID)
     await db.refresh(new_user)
+
+    return new_user
     
-    return UserResponse.from_orm(new_user)  # Return the created user instance
+    # return UserResponse.from_orm(new_user)  # Return the created user instance
 
 # Function to retrieve a user by their email
 async def get_user_by_mail(db: AsyncSession, email: str):
@@ -97,6 +100,12 @@ async def get_all_users(db:AsyncSession):
     result = await db.execute(select(User))
     users = result.scalars().all()
     return users
+
+async def get_token_for_user(db: AsyncSession, refresh_token: str, user_id:int):
+    stmt = select(Token).where(Token.refresh_token == refresh_token, Token.user_id == user_id)
+    result = await db.execute(stmt)
+    token_entry = result.scalars().first()
+    return token_entry
 
 
 async def update_user(db: AsyncSession, user_id:int, user_update:UserUpdate ):

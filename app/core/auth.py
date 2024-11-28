@@ -3,8 +3,8 @@ from passlib.context import CryptContext  # type: ignore # Importing password en
 from fastapi import Depends, HTTPException, status  # Importing FastAPI dependencies for handling HTTP exceptions and status codes
 from starlette.requests import Request  # Importing Request object for managing HTTP requests
 from sqlalchemy.orm import Session  # Importing SQLAlchemy session for interacting with the database
-from datetime import datetime, timedelta  # Importing datetime utilities for time-based calculations
-from pytz import timezone  # Importing timezone utilities for time zone handling
+from datetime import datetime, timedelta, timezone
+# from pytz import timezone  # Importing timezone utilities for time zone handling
 from jose import JWTError, jwt  # type: ignore # Importing JWT (JSON Web Token) utilities for token creation and verification
 from fastapi.security import OAuth2PasswordBearer  # Importing OAuth2PasswordBearer for token authentication
 from sqlalchemy.future import select
@@ -133,7 +133,7 @@ def create_access_token(data: dict, expires_in_minutes: int):
         str: Encoded JWT token.
     """
     to_encode = data.copy()
-    expire = datetime.now(datetime.timezone.utc) + timedelta(minutes=expires_in_minutes)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=expires_in_minutes)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
@@ -146,6 +146,7 @@ def verify_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
-    except JWTError:
+    except JWTError as jt:
+        print(jt)
         return None
 

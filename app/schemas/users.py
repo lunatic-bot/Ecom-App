@@ -24,13 +24,12 @@ class UserResponse(BaseModel):
     email: EmailStr  
     created_at: datetime  
     class Config:
-        orm_mode = True  
         from_attributes=True
-        allow_population_by_field_name = True
 
 # Schema for the login response, containing the JWT access token
 class Token(BaseModel):
     access_token: str  # The JWT token for authentication
+    refresh_token: str
     token_type: str  # Type of the token, typically "Bearer"
 
 # Schema for requesting a password reset

@@ -5,6 +5,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from starlette.requests import Request  # Handling HTTP requests
 from fastapi.security import OAuth2PasswordRequestForm  # OAuth2 form for login
 from datetime import datetime, timedelta  # Handling date and time operations
+from datetime import timezone
 from pytz import timezone  # Managing time zones
 from email_validator import validate_email, EmailNotValidError  # Validating email addresses
 from sqlalchemy.future import select
@@ -52,9 +53,7 @@ async def create_user(
     # Send a welcome email after successful signup
     # await send_email("Welcome", username, email)
 
-    return new_user
-
-    # return {"status" : "success", "user": new_user}    
+    return new_user    
 
 @router.put("/users/{user_id}", response_model=UserResponse, tags=["Admin"])
 async def update_user(
@@ -123,12 +122,12 @@ async def login_for_access_and_refresh_token(
         )
 
     # Generate Access Token
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
+    # access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(data={"sub": str(user.user_id), "email":user.email, "role": str(user.role)}, expires_in_minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     # Generate Refresh Token
-    refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_MINUTES)
-    refresh_token = create_access_token(data={"sub": user.email}, expires_delta=refresh_token_expires)
+    # refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_MINUTES)
+    refresh_token = create_access_token(data={"sub": str(user.user_id), "email":user.email, "role": str(user.role)}, expires_in_minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
 
     return {
         "access_token": access_token,
@@ -139,20 +138,27 @@ async def login_for_access_and_refresh_token(
 
 
 @router.post("/refresh", response_model=TokenResponse, tags=["User"])
-def refresh_access_token(refresh_token: str, db: AsyncSession = Depends(get_db)):
+async def refresh_access_token(refresh_token: str, db: AsyncSession = Depends(get_db)):
     # Verify refresh token
     payload = verify_token(refresh_token)
+    print(payload)
     if not payload:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
 
     user_id = payload.get("sub")
-    token_entry = db.query(Token).filter(Token.refresh_token == refresh_token, Token.user_id == user_id).first()
+    user_email = payload.get("email")
+    user_role = payload.get("role")
+    # token_entry = db.query(Token).filter(Token.refresh_token == refresh_token, Token.user_id == user_id).first()
+    # from sqlalchemy.future import select
 
-    if not token_entry or token_entry.expires_at < datetime.utcnow():
+    # Use an asynchronous query
+    token_entry = await crud.get_token_for_user(db, refresh_token, user_id)
+
+    if not token_entry or token_entry.expires_at < datetime.now(timezone.utc):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token expired")
 
     # Generate new access token
-    access_token = create_access_token({"sub": user_id})
+    access_token = create_access_token({"sub": str(user_id), "email": user_email, "role": user_role}, expires_in_minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 
