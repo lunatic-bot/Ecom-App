@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession  # Import SQLAlchemy asyncsessio
 from fastapi import HTTPException, status
 
 from schemas.users import UserUpdate
+from schemas.users import UserResponse
 from db.models.user import User # Import the User model
 from core.auth import verify_password  # Import function to verify password from the auth module
 from core.auth import get_password_hash  # Import function to hash passwords from the auth module
@@ -35,7 +36,7 @@ async def create_user_in_db(db: AsyncSession, username: str, email: str, passwor
     # Refresh the user instance to reflect any auto-generated fields (e.g., ID)
     await db.refresh(new_user)
     
-    return new_user  # Return the created user instance
+    return UserResponse.from_orm(new_user)  # Return the created user instance
 
 # Function to retrieve a user by their email
 async def get_user_by_mail(db: AsyncSession, email: str):

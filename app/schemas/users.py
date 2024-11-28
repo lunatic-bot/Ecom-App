@@ -19,12 +19,14 @@ class UserUpdate(BaseModel):
 
 # Schema for user response after successful sign-up or retrieval
 class UserResponse(BaseModel):
-    id: int  
+    user_id: int  
     username: str  
     email: EmailStr  
-    creation_time: datetime  
+    created_at: datetime  
     class Config:
         orm_mode = True  
+        from_attributes=True
+        allow_population_by_field_name = True
 
 # Schema for the login response, containing the JWT access token
 class Token(BaseModel):

@@ -50,9 +50,11 @@ async def create_user(
     new_user = await crud.create_user_in_db(db, username, email, password)
     
     # Send a welcome email after successful signup
-    await send_email("Welcome", username, email)
+    # await send_email("Welcome", username, email)
 
-    return {"status" : "success", "user": new_user}    
+    return new_user
+
+    # return {"status" : "success", "user": new_user}    
 
 @router.put("/users/{user_id}", response_model=UserResponse, tags=["Admin"])
 async def update_user(
