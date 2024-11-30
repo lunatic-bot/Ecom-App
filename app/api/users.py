@@ -4,9 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import HTMLResponse, RedirectResponse
 from starlette.requests import Request  # Handling HTTP requests
 from fastapi.security import OAuth2PasswordRequestForm  # OAuth2 form for login
-from datetime import datetime, timedelta  # Handling date and time operations
-from datetime import timezone
-from pytz import timezone  # Managing time zones
+from datetime import datetime, timedelta, timezone  # Handling date and time operations
 from email_validator import validate_email, EmailNotValidError  # Validating email addresses
 from sqlalchemy.future import select
 
@@ -63,7 +61,7 @@ async def update_user(
     current_user: User = Depends(get_current_user),
 ):
     # Check permissions
-    if current_user.role != "admin" and current_user.id != user_id:
+    if current_user.role != "admin" and current_user.user_id != user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to update this user"
         )
@@ -128,6 +126,8 @@ async def login_for_access_and_refresh_token(
     # Generate Refresh Token
     # refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_MINUTES)
     refresh_token = create_access_token(data={"sub": str(user.user_id), "email":user.email, "role": str(user.role)}, expires_in_minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
+
+    saved_token = await crud.save_refresh_token(db, refresh_token, user.user_id, REFRESH_TOKEN_EXPIRE_MINUTES)
 
     return {
         "access_token": access_token,

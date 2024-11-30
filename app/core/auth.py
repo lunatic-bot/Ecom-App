@@ -45,7 +45,7 @@ async def get_current_user(db: AsyncSession = Depends(get_db), token: str = Depe
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
     # Fetch user from the database
-    result = await db.execute(select(User).filter(User.id == user_id))
+    result = await db.execute(select(User).filter(User.user_id == int(user_id)))
     user = result.scalars().first()
 
     if not user:

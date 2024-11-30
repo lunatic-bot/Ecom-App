@@ -1,6 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession  # Import SQLAlchemy asyncsession for interacting with the database
 from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
+from datetime import datetime, timedelta, timezone
 
 from schemas.users import UserUpdate
 from schemas.users import UserResponse
@@ -82,7 +84,7 @@ async def authenticate_user(db: AsyncSession, email: str, password: str):
 
 async def delete_user(db:AsyncSession, user_id: int):
     # Fetch user
-    result = await db.execute(select(User).filter(User.id == user_id))
+    result = await db.execute(select(User).filter(User.user_id == int(user_id)))
     user = result.scalars().first()
 
     if not user:
@@ -101,8 +103,45 @@ async def get_all_users(db:AsyncSession):
     users = result.scalars().all()
     return users
 
+
+async def save_refresh_token(
+    db: AsyncSession, refresh_token: str, user_id: int, expires_in_minutes: int
+) -> Token:
+    """
+    Save a refresh token to the database.
+
+    Args:
+        db (AsyncSession): The database session.
+        user_id (int): The ID of the user.
+        refresh_token (str): The refresh token string.
+        expires_at (datetime): The expiration time of the refresh token.
+
+    Returns:
+        Token: The created Token instance.
+
+    Raises:
+        ValueError: If there is an issue saving the token.
+    """
+    expires = datetime.now(timezone.utc) + timedelta(minutes=expires_in_minutes)
+
+    new_token = Token(
+        user_id=user_id,
+        refresh_token=refresh_token,
+        expires_at=expires,
+    )
+
+    try:
+        db.add(new_token)  # Add the new token to the session
+        await db.commit()  # Commit the transaction
+        await db.refresh(new_token)  # Refresh to get the updated instance
+        return new_token
+    except IntegrityError:
+        await db.rollback()  # Rollback in case of an error
+        raise ValueError("Error saving token to the database: Refresh token might already exist.")
+
+
 async def get_token_for_user(db: AsyncSession, refresh_token: str, user_id:int):
-    stmt = select(Token).where(Token.refresh_token == refresh_token, Token.user_id == user_id)
+    stmt = select(Token).where(Token.refresh_token == refresh_token, Token.user_id == int(user_id))
     result = await db.execute(stmt)
     token_entry = result.scalars().first()
     return token_entry
@@ -110,7 +149,7 @@ async def get_token_for_user(db: AsyncSession, refresh_token: str, user_id:int):
 
 async def update_user(db: AsyncSession, user_id:int, user_update:UserUpdate ):
     # Fetch user
-    result = await db.execute(select(User).filter(User.id == user_id))
+    result = await db.execute(select(User).filter(User.user_id == int(user_id)))
     user = result.scalars().first()
 
     if not user:
