@@ -1,18 +1,28 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
+from decimal import Decimal
+from uuid import UUID
 
-class OrderItem(BaseModel):
-    product_id: int
+class OrderItemBase(BaseModel):
+    product_id: UUID
     quantity: int
+    price: Decimal
 
-class OrderCreate(BaseModel):
+class OrderItemCreate(OrderItemBase):
+    pass
+
+class OrderBase(BaseModel):
     user_id: int
-    items: List[OrderItem]
-    
-class OrderResponse(BaseModel):
-    order_id: int
-    user_id: int
-    items: List[OrderItem]
-    total_amount: float
+    total_amount: Decimal
+    shipping_address: str
 
+class OrderCreate(OrderBase):
+    order_items: List[OrderItemCreate]
 
+class OrderResponse(OrderBase):
+    order_id: UUID
+    status: str
+    order_items: List[OrderItemBase]
+
+    class Config:
+        orm_mode = True
