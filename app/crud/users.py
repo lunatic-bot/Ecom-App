@@ -82,26 +82,60 @@ async def authenticate_user(db: AsyncSession, email: str, password: str):
     # Return the authenticated user if successful
     return user
 
-async def delete_user(db:AsyncSession, user_id: int):
-    # Fetch user
-    result = await db.execute(select(User).filter(User.user_id == int(user_id)))
-    user = result.scalars().first()
 
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+# Asynchronous function to delete a user from the database with exception handling
+async def delete_user(db: AsyncSession, user_id: int):
+    try:
+        # Fetch the user from the database using the provided `user_id`
+        result = await db.execute(select(User).filter(User.user_id == int(user_id)))
+        
+        # Fetch the first matching user (or None if no user is found)
+        user = result.scalars().first()
 
-    # Delete user
-    await db.delete(user)
-    await db.commit()
+        # If no user is found, raise a 404 HTTP exception indicating that the user was not found
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    return user
+        # If the user is found, delete the user from the database
+        await db.delete(user)
+
+        # Commit the changes to the database to persist the deletion
+        await db.commit()
+
+        # Return the deleted user object
+        # The return value allows confirming the deleted user's details
+        return user
+
+    except Exception as e:
+        # Log the error message if something goes wrong
+        # You can replace the print statement with actual logging (e.g., `logging.error(str(e))`)
+        print(f"Error occurred while deleting user with ID {user_id}: {str(e)}")
+
+        # Raise a generic HTTPException with a 500 status code if an unexpected error occurs
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while deleting the user")
 
 
-async def get_all_users(db:AsyncSession):
-    # Fetch all users
-    result = await db.execute(select(User))
-    users = result.scalars().all()
-    return users
+
+# Asynchronous function to fetch all users from the database with exception handling
+async def get_all_users(db: AsyncSession):
+    try:
+        # Execute a query to select all users from the 'User' table
+        result = await db.execute(select(User))
+        
+        # Fetch all user records from the query result and convert them to a list
+        users = result.scalars().all()
+
+        # Return the list of users
+        return users
+
+    except Exception as e:
+        # Log the error message if something goes wrong during the database operation
+        # Replace `print` with an actual logging mechanism for production (e.g., `logging.error()`)
+        print(f"Error occurred while fetching users: {str(e)}")
+
+        # Raise an HTTPException with a 500 status code indicating an internal server error
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while fetching users")
+
 
 
 async def save_refresh_token(
@@ -140,41 +174,85 @@ async def save_refresh_token(
         raise ValueError("Error saving token to the database: Refresh token might already exist.")
 
 
-async def get_token_for_user(db: AsyncSession, refresh_token: str, user_id:int):
-    stmt = select(Token).where(Token.refresh_token == refresh_token, Token.user_id == int(user_id))
-    result = await db.execute(stmt)
-    token_entry = result.scalars().first()
-    return token_entry
+# Asynchronous function to fetch a token entry for a specific user by refresh token
+async def get_token_for_user(db: AsyncSession, refresh_token: str, user_id: int):
+    try:
+        # Create a select statement to fetch the token for the specified user and refresh token
+        stmt = select(Token).where(Token.refresh_token == refresh_token, Token.user_id == int(user_id))
+        
+        # Execute the query against the database to get the result
+        result = await db.execute(stmt)
+        
+        # Fetch the first token entry from the result (if any)
+        token_entry = result.scalars().first()
+        
+        # Return the token entry if found, or None if not
+        return token_entry
+
+    except Exception as e:
+        # Log the error message in case of any exception during the database operation
+        # Replace `print` with actual logging for production (e.g., `logging.error()`)
+        print(f"Error occurred while fetching token for user {user_id}: {str(e)}")
+
+        # Raise an HTTPException with a 500 status code indicating an internal server error
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while fetching the token")
 
 
-async def update_user(db: AsyncSession, user_id:int, user_update:UserUpdate ):
-    # Fetch user
-    result = await db.execute(select(User).filter(User.user_id == int(user_id)))
-    user = result.scalars().first()
 
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+# Asynchronous function to update a user's details
+async def update_user(db: AsyncSession, user_id: int, user_update: UserUpdate):
+    try:
+        # Fetch the user from the database using the provided user_id
+        result = await db.execute(select(User).filter(User.user_id == int(user_id)))
+        user = result.scalars().first()
 
-    # Update user details
-    for key, value in user_update.dict(exclude_unset=True).items():
-        setattr(user, key, value)
+        # If the user is not found, raise a 404 HTTPException
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    await db.commit()
-    await db.refresh(user)
+        # Update user details by iterating over the fields provided in the user_update object
+        # The `exclude_unset=True` ensures only the fields provided in the request are updated
+        for key, value in user_update.dict(exclude_unset=True).items():
+            setattr(user, key, value)
 
-    return user
+        # Commit the changes to the database
+        await db.commit()
+
+        # Refresh the user instance to reflect the updated data
+        await db.refresh(user)
+
+        # Return the updated user object
+        return user
+
+    except Exception as e:
+        # Log the error message in case of any exception during the database operation
+        # In production, replace `print` with actual logging (e.g., `logging.error()`)
+        print(f"Error occurred while updating user {user_id}: {str(e)}")
+
+        # Raise an HTTPException with a 500 status code indicating an internal server error
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while updating the user")
 
 
-# Function to retrieve a user by their reset token
+# Asynchronous function to retrieve a user by their reset token
 async def get_user_by_token(db: AsyncSession, token: str):
-    """
-    Fetches a user from the database based on their password reset token.
-    Args:
-        db (Session): SQLAlchemy database session.
-        token (str): The reset token of the user.
-    Returns:
-        User: The user instance if found, else None.
-    """
-    # return await db.query(User).filter(User.reset_token == token).first()
-    result = await db.execute(select(User).filter(User.reset_token == token))
-    return result.scalars().first()
+    try:
+        # Execute a database query to find the user associated with the given reset token
+        result = await db.execute(select(User).filter(User.reset_token == token))
+        
+        # Return the first user found or None if no user matches the reset token
+        user = result.scalars().first()
+
+        # If no user is found, raise a 404 HTTPException indicating that the token is invalid
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Invalid reset token")
+
+        # Return the user object
+        return user
+
+    except Exception as e:
+        # Log the error message in case of an unexpected error (replace `print` with actual logging in production)
+        print(f"Error occurred while retrieving user by reset token: {str(e)}")
+        
+        # Raise an HTTPException with a 500 status code indicating an internal server error
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An error occurred while retrieving the user")
+

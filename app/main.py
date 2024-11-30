@@ -6,7 +6,7 @@ from starlette.middleware.sessions import SessionMiddleware
 import os
 
 # from config import settings
-app = FastAPI()
+app = FastAPI(debug=True)
 
 
 # app.add_exception_handler(StarletteHTTPException, http_exception_handler)
@@ -14,18 +14,10 @@ app = FastAPI()
 
 
 from api.users import router as users_router
-# from app.api.todos import router as todos_router
-# from app.api.others import router as others_router
-# from app.api.auth_routes import router as auth_router
 
 ## user routes
 app.include_router(users_router)
-## todo routes
-# app.include_router(todos_router, tags=["Todos"])
-# ## other routes
-# app.include_router(others_router, tags=["Others"])
 
-# app.include_router(auth_router)
 
 
 
