@@ -7,6 +7,7 @@ from typing import List
 
 router = APIRouter()
 
+## create new order
 @router.post("/orders", response_model=OrderResponse)
 async def create_new_order(order_data: OrderCreate, db: AsyncSession = Depends(get_db)):
     return await create_order(db, order_data)
