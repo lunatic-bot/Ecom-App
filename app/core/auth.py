@@ -11,7 +11,7 @@ from sqlalchemy.future import select
 from db.database import get_db  # Importing database dependency for session management
 from db.models.user import User  # Importing the User model from the database models
 from sqlalchemy.ext.asyncio import AsyncSession
-from jwt import PyJWTError
+# from jwt import PyJWTError
 
 
 # OAuth2 scheme for token-based authentication
@@ -117,7 +117,7 @@ def create_access_token(data: dict, expires_in_minutes: int):
         # Return the successfully created JWT.
         return encoded_jwt
 
-    except PyJWTError as e:
+    except JWTError as e:
         # Handle exceptions related to the JWT encoding process.
         raise ValueError(f"An error occurred while creating the access token: {e}")
 
