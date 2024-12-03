@@ -6,7 +6,8 @@ import uuid
 from enum import Enum as PyEnum
 
 class OrderStatus(PyEnum):
-    PENDING = 'Pending'
+    CART = 'Cart' # Represents a draft order (cart)
+    PENDING = 'Pending' # Order placed but not shipped
     SHIPPED = 'Shipped'
     DELIVERED = 'Delivered'
     CANCELED = 'Canceled'

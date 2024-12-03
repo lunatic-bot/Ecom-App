@@ -1,4 +1,5 @@
-from sqlalchemy import Column, String, UUID  
+from sqlalchemy import Column, String, UUID 
+from sqlalchemy.orm import relationship 
 from .base import Base
 import uuid
 
@@ -10,3 +11,5 @@ class Vendor(Base):
     email = Column(String, unique=True, nullable=False)
     phone = Column(String, nullable=False)
     address = Column(String, nullable=True)
+
+    products = relationship("Product", back_populates="vendor")

@@ -24,11 +24,14 @@ class Product(Base):
     stock_quantity = Column(Integer, nullable=False)
     category_id = Column(UUID(as_uuid=True), ForeignKey('categories.category_id'), nullable=False)
 
+    vendor = relationship("Vendor", back_populates="products")
+
     categories = relationship(
         "Category",
         secondary=product_category_association,
         back_populates="products"
     )
+
 
     # Many-to-Many Relationship with Wishlist
     wishlists = relationship(
