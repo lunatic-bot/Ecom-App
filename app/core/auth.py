@@ -27,11 +27,11 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30  # Access token expiration time in minutes
 
 
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
+async def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify if the plain password matches the hashed password."""
     return pwd_context.verify(plain_password, hashed_password)
 
-def get_password_hash(password: str) -> str:
+async def get_password_hash(password: str) -> str:
     """Hash a password using bcrypt."""
     return pwd_context.hash(password)
 
@@ -86,8 +86,22 @@ async def get_current_user(db: AsyncSession = Depends(get_db), token: str = Depe
     return user
 
 
+async def is_superuser(current_user: User = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized to perform this action")
 
-def create_access_token(data: dict, expires_in_minutes: int):
+async def is_vendor(current_user: User = Depends(get_current_user)):
+    if current_user.role != "vendor":
+        raise HTTPException(status_code=403, detail="Only vendors can perform this action")
+
+async def is_admin(current_user: User = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Only admins can perform this action")
+
+
+
+
+async def create_access_token(data: dict, expires_in_minutes: int):
     """
     Create a JWT token with a specified expiration time.
 
