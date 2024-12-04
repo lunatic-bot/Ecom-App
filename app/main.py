@@ -15,11 +15,13 @@ app = FastAPI(debug=True)
 
 from api.users import router as users_router
 from api.orders import router as orders_router
+from app.api.products import router as product_router
 from api.cartandwishlist import router as cartwishlist_router
 
 ## user routes
 app.include_router(users_router)
 app.include_router(orders_router)
+app.include_router(product_router)
 app.include_router(cartwishlist_router)
 
 
