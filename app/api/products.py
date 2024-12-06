@@ -23,15 +23,41 @@ async def create_product(
     db: AsyncSession = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
+    """
+    Create a new product.
+
+    - **product**: The ProductCreate schema containing the product's details.
+    - **db**: Database session dependency for database interaction.
+    - **current_user**: The currently authenticated user.
+    - **Depends(is_vendor)**: Ensures only vendors can access this endpoint.
+    - The `current_user.vendor_id` is used to associate the product with the vendor.
+    - Returns the created product using the ProductResponse schema.
+    """
     return await create_product_in_db(db, product, current_user.vendor_id)
+
 
 @router.get("/", response_model=List[ProductResponse])
 async def get_all_products(db: AsyncSession = Depends(get_db)):
+    """
+    Retrieve all products.
+
+    - **db**: Database session dependency for database interaction.
+    - Returns a list of products using the ProductResponse schema.
+    """
     return await get_all_products_from_db(db)
+
 
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product(product_id: UUID, db: AsyncSession = Depends(get_db)):
+    """
+    Retrieve a product by its ID.
+
+    - **product_id**: UUID of the product to retrieve.
+    - **db**: Database session dependency for database interaction.
+    - Returns the product details using the ProductResponse schema.
+    """
     return await get_product_by_id_from_db(db, product_id)
+
 
 @router.put("/{product_id}", response_model=ProductResponse)
 async def update_product(
@@ -40,7 +66,18 @@ async def update_product(
     db: AsyncSession = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
+    """
+    Update an existing product.
+
+    - **product_id**: UUID of the product to update.
+    - **product_update**: ProductUpdate schema containing the updated product details.
+    - **db**: Database session dependency for database interaction.
+    - **current_user**: The currently authenticated user.
+    - Ensures that the current user is authorized to update the product.
+    - Returns the updated product details using the ProductResponse schema.
+    """
     return await update_product_in_db(db, product_id, product_update, current_user)
+
 
 @router.delete("/{product_id}", dependencies=[Depends(is_vendor)])
 async def delete_product(
@@ -48,6 +85,15 @@ async def delete_product(
     db: AsyncSession = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
+    """
+    Delete a product.
+
+    - **product_id**: UUID of the product to delete.
+    - **db**: Database session dependency for database interaction.
+    - **current_user**: The currently authenticated user.
+    - **Depends(is_vendor)**: Ensures only vendors can access this endpoint.
+    - Ensures that the product belongs to the current user before deletion.
+    - Returns a success message upon successful deletion.
+    """
     await delete_product_from_db(db, product_id, current_user)
     return {"message": "Product deleted successfully"}
-
