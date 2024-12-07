@@ -16,7 +16,7 @@ app = FastAPI(debug=True)
 from api.users import router as users_router
 from api.orders import router as orders_router
 from app.api.products import router as product_router
-from api.cartandwishlist import router as cartwishlist_router
+# from api.cartandwishlist import router as cartwishlist_router
 from api.vendors import router as vendor_router
 
 ## user routes
