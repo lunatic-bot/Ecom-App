@@ -22,8 +22,8 @@ from api.vendors import router as vendor_router
 ## user routes
 app.include_router(users_router)
 app.include_router(orders_router)
-app.include_router(product_router)
-app.include_router(vendor_router)
+# app.include_router(product_router)
+# app.include_router(vendor_router)
 # app.include_router(cartwishlist_router)
 
 
