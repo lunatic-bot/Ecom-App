@@ -28,15 +28,3 @@ class Vendor(Base):
     products = relationship("Product", back_populates="vendor")
     # Relationship with the Product model, links the vendor to the products they supply
 
-
-
-# class Vendor(Base):
-#     __tablename__ = 'vendors'
-
-#     vendor_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-#     vendor_name = Column(String, nullable=False)
-#     email = Column(String, unique=True, nullable=False)
-#     phone = Column(String, nullable=False)
-#     address = Column(String, nullable=True)
-
-#     products = relationship("Product", back_populates="vendor")
