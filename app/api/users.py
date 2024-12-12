@@ -195,13 +195,13 @@ async def login_for_access_and_refresh_token(
         )
 
     # Generate the access token with a specified expiration time
-    access_token = create_access_token(
+    access_token = await create_access_token(
         data={"sub": str(user.user_id), "email": user.email, "role": str(user.role)},
         expires_in_minutes=ACCESS_TOKEN_EXPIRE_MINUTES
     )
 
     # Generate the refresh token with a longer expiration time
-    refresh_token = create_access_token(
+    refresh_token = await create_access_token(
         data={"sub": str(user.user_id), "email": user.email, "role": str(user.role)},
         expires_in_minutes=REFRESH_TOKEN_EXPIRE_MINUTES
     )
@@ -259,7 +259,7 @@ async def refresh_access_token(refresh_token: str, db: AsyncSession = Depends(ge
         )
 
     # Step 4: Generate a new access token
-    access_token = create_access_token(
+    access_token = await create_access_token(
         data={"sub": str(user_id), "email": user_email, "role": user_role},
         expires_in_minutes=ACCESS_TOKEN_EXPIRE_MINUTES
     )
