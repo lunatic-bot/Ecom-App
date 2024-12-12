@@ -1,10 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.exc import NoResultFound
 from db.models import Vendor
 from schemas.vendors import VendorCreate, VendorUpdate
 from uuid import UUID
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 
 async def create_vendor_in_db(db: AsyncSession, vendor_data: VendorCreate) -> Vendor:
     """

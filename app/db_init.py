@@ -1,7 +1,7 @@
 # This creates all tables that are defined in your models
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
-from app.db.models.users import Base
+from db.models.users import Base
 from db.database import async_engine
 
 

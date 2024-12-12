@@ -24,7 +24,7 @@ async def create_user_in_db(db: AsyncSession, username: str, email: str, passwor
         User: The created user instance.
     """
     # Hash the user's password before storing it in the database
-    hashed_password = get_password_hash(password)
+    hashed_password = await get_password_hash(password)
     
     # Create a new user instance
     new_user = User(
