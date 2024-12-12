@@ -9,7 +9,7 @@ from sqlalchemy.future import select
 
 # from crud.users import 
 from db.database import get_db  # Importing database dependency for session management
-from app.db.models.users import User  # Importing the User model from the database models
+from db.models.users import User  # Importing the User model from the database models
 from sqlalchemy.ext.asyncio import AsyncSession
 # from jwt import PyJWTError
 

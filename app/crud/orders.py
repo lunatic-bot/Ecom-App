@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from app.db.models.orders import Order, OrderItem
-from app.schemas.orders import OrderCreate, OrderItemCreate
+from db.models.orders import Order, OrderItem
+from schemas.orders import OrderCreate, OrderItemCreate
 from fastapi import HTTPException, status
 from datetime import datetime
 

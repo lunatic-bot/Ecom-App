@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import NoResultFound
-from models import Vendor
-from schemas import VendorCreate, VendorUpdate
+from db.models import Vendor
+from schemas.vendors import VendorCreate, VendorUpdate
 from uuid import UUID
 from fastapi import HTTPException, status
 

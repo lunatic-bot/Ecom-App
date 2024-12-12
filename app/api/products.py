@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from schemas import ProductCreate, ProductUpdate, ProductResponse
-from dependencies import get_db, get_current_user, is_admin, is_vendor
+from schemas.products import ProductCreate, ProductUpdate, ProductResponse
+from core.auth import get_db, get_current_user, is_admin, is_vendor
 from crud.products import (
     create_product_in_db,
     get_all_products_from_db,

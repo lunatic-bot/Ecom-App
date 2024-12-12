@@ -13,7 +13,7 @@ import crud.users as crud
 from db.database import get_db
 from core.auth import create_access_token, get_current_user, get_password_hash, verify_token
 from utlis.utils import generate_reset_token, send_email
-from app.db.models.users import User  # User model
+from db.models.users import User  # User model
 from schemas.users import UserResponse, Token, TokenResponse, UserUpdate # Pydantic models for user response and token
 
 # Defining an API router for managing user routes

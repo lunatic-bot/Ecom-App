@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from schemas import VendorCreate, VendorUpdate, VendorResponse
-from dependencies import get_db, is_admin
+from schemas.vendors import VendorCreate, VendorUpdate, VendorResponse
+from core.auth import get_db, is_admin
 from crud.vendors import (
     create_vendor_in_db,
     get_all_vendors_from_db,
