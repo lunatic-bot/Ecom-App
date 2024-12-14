@@ -24,6 +24,7 @@ async def retrieve_order(order_id: str, db: AsyncSession = Depends(get_db)):
 async def modify_order(order_id: str, status: str = None, cancellation_reason: str = None, db: AsyncSession = Depends(get_db)):
     return await update_order(db, order_id, status, cancellation_reason)
 
+# delete 
 @router.delete("/orders/{order_id}", tags=["Order"])
 async def remove_order(order_id: str, db: AsyncSession = Depends(get_db)):
     return await delete_order(db, order_id)
