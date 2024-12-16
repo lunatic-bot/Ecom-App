@@ -5,7 +5,6 @@ from sqlalchemy.exc import IntegrityError
 from datetime import datetime, timedelta, timezone
 
 from schemas.users import UserUpdate
-from schemas.users import UserResponse
 from db.models.users import User # Import the User model
 from db.models.token import Token # Import the User model
 from core.auth import verify_password  # Import function to verify password from the auth module

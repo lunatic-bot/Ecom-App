@@ -1,9 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from db.models.orders import Order, OrderItem
-from schemas.orders import OrderCreate, OrderItemCreate
+from schemas.orders import OrderCreate
 from fastapi import HTTPException, status
-from datetime import datetime
 
 ## create new order
 async def create_order(db: AsyncSession, order_data: OrderCreate):

@@ -1,10 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.exc import NoResultFound
 from db.models import Product
 from schemas.products import ProductCreate, ProductUpdate
 from uuid import UUID
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 
 
 async def create_product_in_db(db: AsyncSession, product_data: ProductCreate, vendor_id: UUID) -> Product:
