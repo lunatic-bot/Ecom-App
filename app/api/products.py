@@ -35,7 +35,7 @@ async def create_product(
     """
     return await create_product_in_db(db, product, current_user.vendor_id)
 
-
+# get all products
 @router.get("/", response_model=List[ProductResponse])
 async def get_all_products(db: AsyncSession = Depends(get_db)):
     """
@@ -46,7 +46,7 @@ async def get_all_products(db: AsyncSession = Depends(get_db)):
     """
     return await get_all_products_from_db(db)
 
-
+# get product
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product(product_id: UUID, db: AsyncSession = Depends(get_db)):
     """
@@ -58,7 +58,7 @@ async def get_product(product_id: UUID, db: AsyncSession = Depends(get_db)):
     """
     return await get_product_by_id_from_db(db, product_id)
 
-
+# update product
 @router.put("/{product_id}", response_model=ProductResponse)
 async def update_product(
     product_id: UUID,
@@ -78,7 +78,7 @@ async def update_product(
     """
     return await update_product_in_db(db, product_id, product_update, current_user)
 
-
+# delete product
 @router.delete("/{product_id}", dependencies=[Depends(is_vendor)])
 async def delete_product(
     product_id: UUID,
